@@ -1,0 +1,58 @@
+﻿-- 1.1 Survey the Survey Database
+ SELECT *
+ FROM survey
+ LIMIT 10;
+ 
+
+
+ -- 1.2 Group by Question
+ SELECT COUNT(DISTINCT user_id) AS 'Responses', question
+ FROM survey
+ GROUP BY 2;
+ 
+ -- 1.4 Home Try-On Funnel
+ SELECT *
+ FROM quiz
+ LIMIT 5;
+ SELECT *
+ FROM home_try_on
+ LIMIT 5;
+ SELECT *
+ FROM purchase
+ LIMIT 5;
+ 
+ -- 1.5 Home Try-On Funnel Advanced
+WITH wp AS (
+        SELECT *
+        FROM quiz q
+        LEFT JOIN home_try_on h
+                ON q.user_id = h.user_id
+        LEFT JOIN purchase p
+                ON q.user_id = p.user_id)
+SELECT user_id, 
+        CASE
+                  WHEN number_of_pairs IS NULL THEN 'False'
+      ELSE 'True'
+      END AS is_home_try_on,
+  number_of_pairs,
+  CASE
+                  WHEN product_id IS NULL THEN "False"
+      ELSE 'True'
+      END AS is_purchase
+FROM wp
+GROUP BY user_id
+LIMIT 10; 
+
+
+--1.6 Home Try On Practical
+WITH wp AS (
+        SELECT *
+        FROM quiz q
+        LEFT JOIN home_try_on h
+                ON q.user_id = h.user_id
+        LEFT JOIN purchase p
+                ON q.user_id = p.user_id)
+SELECT number_of_pairs AS 'Pairs Sampled by User', COUNT(*) AS 'Users', COUNT(product_id) AS 'Purchases', (100*(COUNT(product_id)) / COUNT(*)) AS '% Sold'        
+FROM wp
+WHERE number_of_pairs IS NOT NULL
+GROUP BY number_of_pairs;
